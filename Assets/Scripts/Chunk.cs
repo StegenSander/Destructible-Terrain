@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Chunk
 {
+    #region Variables
     World _ParentWorld;
     World.TerrainInformation _TerrainInfo;
     
@@ -29,8 +31,11 @@ public class Chunk
         get { return _IndexBuffer; }
     }
 
-    int _Row;
-    int _Column;
+    private int _Row;
+    private int _Column;
+
+    public bool NeedsUpdate { get; set; } = true;
+    #endregion
 
     public Chunk(World world,int row, int column, Vector3 position)
     {
@@ -50,19 +55,25 @@ public class Chunk
 
     public void CreateMesh()
     {
+        Profiler.BeginSample("Clearing Data");
+        NeedsUpdate = false;
         //Clear previously used data
         _VertexBuffer.Clear();
         _IndexBuffer.Clear();
+        Profiler.EndSample();
 
-
+        Profiler.BeginSample("Marching cubes");
         for (int x = 0; x < _TerrainInfo.ChunkWidth; x++)
             for (int y = 0; y < _TerrainInfo.ChunkHeight; y++)
                 for (int z = 0; z < _TerrainInfo.ChunkWidth; z++)
                 {
                     MarchCube( x, y, z);
                 }
+        Profiler.EndSample();
 
+        Profiler.BeginSample("Updating mesh");
         UpdateMesh();
+        Profiler.EndSample();
     }
 
     private void MarchCube(int x,int y, int z)
@@ -76,7 +87,8 @@ public class Chunk
         int triangleIdx = 0;
         for (int i = 0; i < 8; i++)
         {
-            Vector3Int sampPos = new Vector3Int(_Row * _TerrainInfo.ChunkWidth, 0, _Column * _TerrainInfo.ChunkWidth) + pos + MarchingCubeData.CornerTable[i];
+            Vector3Int sampPos = 
+                new Vector3Int(_Row * _TerrainInfo.ChunkWidth, 0, _Column * _TerrainInfo.ChunkWidth) + pos + MarchingCubeData.CornerTable[i];
             if (_ParentWorld.Terrain.SampleTerrain(sampPos) > 0/*Surface level*/)
                 triangleIdx |= 1 << i; //Set the correct bit flag to 1, these bit value match the Triangle Table in Marching Cube Data
         }
