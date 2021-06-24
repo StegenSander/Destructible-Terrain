@@ -24,7 +24,8 @@ public class World : MonoBehaviour
         public Material Mat;
     }
 
-
+    [SerializeField] private bool _CalculateOnGPU;
+    [SerializeField] private ComputeShader _MarchingCubeShader;
     [SerializeField] private TerrainInformation _TerrainInfo;
     public TerrainInformation TerrainInfo
     {
@@ -63,14 +64,25 @@ public class World : MonoBehaviour
 
     void Start()
     {
+        if (_CalculateOnGPU) Debug.Log("Marching Cube on GPU");
+        else Debug.Log("Marching Cube on CPU");
         _TerrainMap = new TerrainMap(this);
 
         for (int row = 0; row < _TerrainInfo.AmountOfChunks; row++)
             for (int column = 0; column < _TerrainInfo.AmountOfChunks; column++)
             {
-                Vector3Int chunkPos = RowColumnToChunkPos(row, column);
-                _ChunkMap.Add(chunkPos
-                    , new Chunk(this, row, column, chunkPos));
+                if (_CalculateOnGPU)
+                {
+                    Vector3Int chunkPos = RowColumnToChunkPos(row, column);
+                    _ChunkMap.Add(chunkPos
+                        , new ChunkCompute(this, row, column, chunkPos, _MarchingCubeShader));
+                }
+                else
+                {
+                    Vector3Int chunkPos = RowColumnToChunkPos(row, column);
+                    _ChunkMap.Add(chunkPos
+                        , new Chunk(this, row, column, chunkPos));
+                }
             }
     }
 

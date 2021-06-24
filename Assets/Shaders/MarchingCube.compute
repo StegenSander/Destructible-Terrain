@@ -1,0 +1,60 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel MarchCubes
+#include "MarchingCubeData.compute"
+
+struct Triangle
+{
+    float3 point1;
+    float3 point2;
+    float3 point3;
+};
+
+int terrainWidth;
+int terrainHeight;
+AppendStructuredBuffer<Triangle> triangles;
+RWStructuredBuffer<float> terrainData;
+
+int GetIndex(uint3 id)
+{
+    return id.z + id.y * (terrainWidth + 1) + id.x * (terrainWidth + 1) * (terrainHeight + 1);
+}
+
+[numthreads(8,8,8)]
+void MarchCubes (uint3 id : SV_DispatchThreadID)
+{
+    int triangleIdx = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        int3 sampPos = id + CornerTable[i];
+        if (terrainData[GetIndex(sampPos)] > 0 /*Surface level*/)
+            triangleIdx |= 1 << i; //Set the correct bit flag to 1, these bit value match the Triangle Table in Marching Cube Data
+    }
+	
+    int idx = 0;
+    Triangle T = (Triangle) 0;
+    float3 tempTriangle[3];
+    for (int t = 0; t < 5; t++) //max 5 triangles per cube
+    {
+        for (int p = 0; p < 3; p++) //3 points per triangle
+        {
+                //Get the edge out of the triangle table
+            int edgeIdx = TriangleTable[triangleIdx][idx];
+            if (edgeIdx == -1) return;
+                //Get the 2 vertices of the edge
+            float3 vert1 = id + CornerTable[EdgeTable[edgeIdx][0]];
+            float3 vert2 = id + CornerTable[EdgeTable[edgeIdx][1]];
+
+            float3 vertPos = (vert1 + vert2) / 2.f;
+            
+            tempTriangle[p] = vertPos;
+
+            idx++;
+        }
+        
+        T.point1 = tempTriangle[0];
+        T.point2 = tempTriangle[1];
+        T.point3 = tempTriangle[2];
+        triangles.Append(T);
+    }
+    
+}

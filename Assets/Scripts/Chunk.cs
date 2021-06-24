@@ -6,34 +6,33 @@ using UnityEngine.Profiling;
 public class Chunk
 {
     #region Variables
-    World _ParentWorld;
-    World.TerrainInformation _TerrainInfo;
-    
-    private GameObject _ChunkObject;
+    protected World _ParentWorld;
+    protected World.TerrainInformation _TerrainInfo;
+
+    protected GameObject _ChunkObject;
     public GameObject ChunkObject
     {
         get { return _ChunkObject; }
     }
-    MeshFilter _MeshFilter;
-    MeshCollider _MeshCollider;
+    protected MeshFilter _MeshFilter;
+    protected MeshCollider _MeshCollider;
 
     //Vertex Buffer
-    private List<Vector3> _VertexBuffer = new List<Vector3>();
+    protected List<Vector3> _VertexBuffer = new List<Vector3>();
     public List<Vector3> VertexBuffer
     {
         get { return _VertexBuffer; }
     }
 
     //IndexBuffer
-    private List<int> _IndexBuffer = new List<int>();
+    protected List<int> _IndexBuffer = new List<int>();
     public List<int> IndexBuffer
     {
         get { return _IndexBuffer; }
     }
 
-    private int _Row;
-    private int _Column;
-
+    protected int _Row;
+    protected int _Column;
     public bool NeedsUpdate { get; set; } = true;
     #endregion
 
@@ -53,7 +52,7 @@ public class Chunk
         _MeshCollider =  _ChunkObject.AddComponent<MeshCollider>();
     }
 
-    public void CreateMesh()
+    virtual public void CreateMesh()
     {
         Profiler.BeginSample("Clearing Data");
         NeedsUpdate = false;
@@ -107,9 +106,7 @@ public class Chunk
                 Vector3 vert1 = pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 0]];
                 Vector3 vert2 = pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 1]];
 
-                Vector3 vertPos;
-
-                vertPos = (vert1 + vert2) / 2f;
+                Vector3 vertPos = (vert1 + vert2) / 2f;
 
                 //_IndexBuffer.Add(AddToVertexBuffer(vertPos));
                 _VertexBuffer.Add(vertPos);
@@ -130,7 +127,7 @@ public class Chunk
         return _VertexBuffer.Count - 1; //return new idx
     }
 
-    private void UpdateMesh()
+    protected void UpdateMesh()
     {
         Mesh mesh = new Mesh();
         mesh.vertices = _VertexBuffer.ToArray();

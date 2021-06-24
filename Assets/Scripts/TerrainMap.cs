@@ -8,7 +8,7 @@ public class TerrainMap
     private World _ParentWorld;
     private World.TerrainInformation _TerrainInfo;
     private World.TerrainGenerationInformation _TerrainGenInfo;
-    private float[,,] _TerrainData;
+    public float[,,] _TerrainData;
 
     public enum TerrainChange
     {
@@ -27,6 +27,7 @@ public class TerrainMap
             , _TerrainInfo.ChunkWidth * _TerrainInfo.AmountOfChunks + 1];
 
         PopulateTerrain();
+        Debug.Log($"Terrain chunk size:{_TerrainInfo.ChunkWidth},{_TerrainInfo.ChunkHeight},{_TerrainInfo.ChunkWidth}");
     }
 
     public void PopulateTerrain()

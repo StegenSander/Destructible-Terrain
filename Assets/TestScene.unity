@@ -152,14 +152,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3bdc51c902a4f64086e108b057a54bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _CalculateOnGPU: 1
+  _MarchingCubeShader: {fileID: 7200000, guid: d12aa299aa7d8da48a76249b5abb6ee6, type: 3}
   _TerrainInfo:
-    ChunkWidth: 20
-    ChunkHeight: 40
-    AmountOfChunks: 5
+    ChunkWidth: 64
+    ChunkHeight: 64
+    AmountOfChunks: 1
     Mat: {fileID: 2100000, guid: 36553595eb1c9cd4d9547544471f7910, type: 2}
   _TerrainGenInfo:
-    BaseTerrainHeight: 10
-    TerrainHeightRange: 3
+    BaseTerrainHeight: 4
+    TerrainHeightRange: 2
 --- !u!4 &71218839
 Transform:
   m_ObjectHideFlags: 0
