@@ -44,6 +44,7 @@ void MarchCubes (uint3 id : SV_DispatchThreadID)
             float3 vert1 = id + CornerTable[EdgeTable[edgeIdx][0]];
             float3 vert2 = id + CornerTable[EdgeTable[edgeIdx][1]];
 
+                //Calculate the point
             float3 vertPos = (vert1 + vert2) / 2.f;
             
             tempTriangle[p] = vertPos;
@@ -51,6 +52,7 @@ void MarchCubes (uint3 id : SV_DispatchThreadID)
             idx++;
         }
         
+        //Append the triangle
         T.point1 = tempTriangle[0];
         T.point2 = tempTriangle[1];
         T.point3 = tempTriangle[2];

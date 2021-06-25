@@ -24,8 +24,8 @@ public class ChunkCompute : Chunk
     private bool _IsFinished;
 
     NativeArray<Triangle> _TrianglesOutput;
-    public ChunkCompute(World world, int row, int column, Vector3 position, ComputeShader shader)
-            : base(world,row,column,position)
+    public ChunkCompute(World world, Vector3 position, ComputeShader shader)
+            : base(world,position)
     {
         _MarchingCubeShader = shader;
         if (_MarchingCubeShader.HasKernel("MarchCubes")) Debug.Log("Kernel found");
@@ -48,8 +48,11 @@ public class ChunkCompute : Chunk
 
     ~ChunkCompute()
     {
+        _InputBuffer.Dispose();
         _InputBuffer.Release();
+        _OutputBuffer.Dispose();
         _OutputBuffer.Release();
+        _CountBuffer.Dispose();
         _CountBuffer.Release();
     }
 
@@ -60,7 +63,7 @@ public class ChunkCompute : Chunk
             Profiler.BeginSample("Marching cubes");
             _Updating = true;
             //Set input
-            _InputBuffer.SetData(_ParentWorld.Terrain._TerrainData);
+            _InputBuffer.SetData(Terrain._TerrainData);
 
             _OutputBuffer.SetCounterValue(0);
             _MarchingCubeShader.SetInt("terrainWidth", _ParentWorld.TerrainInfo.ChunkWidth);

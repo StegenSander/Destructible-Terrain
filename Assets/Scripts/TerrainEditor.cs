@@ -23,7 +23,7 @@ public class TerrainEditor : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0))
         {
-            _WorldToEdit.Terrain.UpdateTerrain(_MouseTarget,TerrainMap.TerrainChange.Add);
+            TerrainModifier.ModifyTerrain(_WorldToEdit,_MouseTarget,TerrainModifier.TerrainChange.Add);
         }
     }
 

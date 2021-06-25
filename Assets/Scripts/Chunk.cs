@@ -7,6 +7,7 @@ public class Chunk
 {
     #region Variables
     protected World _ParentWorld;
+    public World GetWorld { get { return _ParentWorld; } }
     protected World.TerrainInformation _TerrainInfo;
 
     protected GameObject _ChunkObject;
@@ -31,18 +32,21 @@ public class Chunk
         get { return _IndexBuffer; }
     }
 
-    protected int _Row;
-    protected int _Column;
     public bool NeedsUpdate { get; set; } = true;
+
+    TerrainMap _TerrainMap;
+    public TerrainMap Terrain
+    {
+        get { return _TerrainMap; }
+    }
     #endregion
 
-    public Chunk(World world,int row, int column, Vector3 position)
+    public Chunk(World world, Vector3 position)
     {
-        _Row = row;
-        _Column = column;
-
         _ParentWorld = world;
         _TerrainInfo = _ParentWorld.TerrainInfo;
+        _TerrainMap = new TerrainMap(this,position);
+
 
         _ChunkObject = new GameObject();
         _ChunkObject.transform.parent = world.transform;
@@ -86,9 +90,8 @@ public class Chunk
         int triangleIdx = 0;
         for (int i = 0; i < 8; i++)
         {
-            Vector3Int sampPos = 
-                new Vector3Int(_Row * _TerrainInfo.ChunkWidth, 0, _Column * _TerrainInfo.ChunkWidth) + pos + MarchingCubeData.CornerTable[i];
-            if (_ParentWorld.Terrain.SampleTerrain(sampPos) > 0/*Surface level*/)
+            Vector3Int sampPos = pos + MarchingCubeData.CornerTable[i];
+            if (_TerrainMap.SampleTerrain(sampPos) > 0/*Surface level*/)
                 triangleIdx |= 1 << i; //Set the correct bit flag to 1, these bit value match the Triangle Table in Marching Cube Data
         }
 

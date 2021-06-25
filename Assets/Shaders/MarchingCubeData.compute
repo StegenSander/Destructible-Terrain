@@ -1,4 +1,4 @@
-//based on online triangle tables: http://paulbourke.net/geometry/polygonise/
+//based on online triangle tables like: http://paulbourke.net/geometry/polygonise/
 static const int3 CornerTable[8] = { int3(0,0,0),int3(1,0,0),int3(1,1,0),int3(0,1,0),int3(0,0,1),int3(1,0,1),int3(1,1,1),int3(0,1,1) };
 
 static const int EdgeTable[12][2] = 

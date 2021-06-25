@@ -37,13 +37,8 @@ public class World : MonoBehaviour
         get { return _TerrainGenInfo; }
     }
 
-    public Func<int, int, int, float> GenerationFunction { get; set; } = null;
+    public Func<float, float, float, float> GenerationFunction { get; set; } = null;
 
-    TerrainMap _TerrainMap;
-    public TerrainMap Terrain
-    {
-        get { return _TerrainMap; }
-    }
 
     private Dictionary<Vector3Int, Chunk> _ChunkMap = new Dictionary<Vector3Int, Chunk>();
     public Dictionary<Vector3Int, Chunk> ChunkMap
@@ -66,7 +61,6 @@ public class World : MonoBehaviour
     {
         if (_CalculateOnGPU) Debug.Log("Marching Cube on GPU");
         else Debug.Log("Marching Cube on CPU");
-        _TerrainMap = new TerrainMap(this);
 
         for (int row = 0; row < _TerrainInfo.AmountOfChunks; row++)
             for (int column = 0; column < _TerrainInfo.AmountOfChunks; column++)
@@ -75,13 +69,13 @@ public class World : MonoBehaviour
                 {
                     Vector3Int chunkPos = RowColumnToChunkPos(row, column);
                     _ChunkMap.Add(chunkPos
-                        , new ChunkCompute(this, row, column, chunkPos, _MarchingCubeShader));
+                        , new ChunkCompute(this, chunkPos, _MarchingCubeShader));
                 }
                 else
                 {
                     Vector3Int chunkPos = RowColumnToChunkPos(row, column);
                     _ChunkMap.Add(chunkPos
-                        , new Chunk(this, row, column, chunkPos));
+                        , new Chunk(this, chunkPos));
                 }
             }
     }
