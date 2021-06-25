@@ -7,6 +7,8 @@ public class TerrainEditor : MonoBehaviour
     [SerializeField] private World _WorldToEdit;
     [SerializeField] [Tooltip("This shape will be added/removed from the terrain")] private Collider _MouseTarget;
     [SerializeField] [Tooltip("Provides an offset the the shape you remove/add")] private Vector3 _Offset;
+
+    TerrainModifier.TerrainChange _State = TerrainModifier.TerrainChange.Add;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +25,14 @@ public class TerrainEditor : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0))
         {
-            TerrainModifier.ModifyTerrain(_WorldToEdit,_MouseTarget,TerrainModifier.TerrainChange.Add);
+            TerrainModifier.ModifyTerrain(_WorldToEdit,_MouseTarget, _State);
+        }
+        if (Input.GetMouseButtonDown(2))
+        {
+            if (_State == TerrainModifier.TerrainChange.Add)
+                _State = TerrainModifier.TerrainChange.Remove;
+            else
+                _State = TerrainModifier.TerrainChange.Add;
         }
     }
 

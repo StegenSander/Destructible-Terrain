@@ -28,14 +28,13 @@ public class ChunkCompute : Chunk
             : base(world,position)
     {
         _MarchingCubeShader = shader;
-        if (_MarchingCubeShader.HasKernel("MarchCubes")) Debug.Log("Kernel found");
+        if (!_MarchingCubeShader.HasKernel("MarchCubes")) Debug.Log("Kernel not found");
         _MainHandle = _MarchingCubeShader.FindKernel("MarchCubes");
-        Debug.Log("Created");
 
         int amountOfVoxels
-            = (world.TerrainInfo.ChunkWidth + 1)
-            * (world.TerrainInfo.ChunkWidth + 1)
-            * (world.TerrainInfo.ChunkHeight + 1);
+            = (world.TerrainInfo.ChunkWidth * world.TerrainInfo.PixelsPerUnit + 1)
+            * (world.TerrainInfo.ChunkWidth * world.TerrainInfo.PixelsPerUnit + 1)
+            * (world.TerrainInfo.ChunkHeight * world.TerrainInfo.PixelsPerUnit + 1);
 
         // A float for each voxel
         _InputBuffer = new ComputeBuffer(amountOfVoxels * sizeof(float), sizeof(float),ComputeBufferType.Structured);
@@ -68,14 +67,14 @@ public class ChunkCompute : Chunk
             _OutputBuffer.SetCounterValue(0);
             _MarchingCubeShader.SetInt("terrainWidth", _ParentWorld.TerrainInfo.ChunkWidth);
             _MarchingCubeShader.SetInt("terrainHeight", _ParentWorld.TerrainInfo.ChunkHeight);
+            _MarchingCubeShader.SetInt("pixelsPerUnit",  _ParentWorld.TerrainInfo.PixelsPerUnit);
             _MarchingCubeShader.SetBuffer(_MainHandle, Shader.PropertyToID("terrainData"), _InputBuffer);
             _MarchingCubeShader.SetBuffer(_MainHandle, Shader.PropertyToID("triangles"), _OutputBuffer);
 
             _MarchingCubeShader.Dispatch(_MainHandle
-                , _ParentWorld.TerrainInfo.ChunkWidth/8
-                , _ParentWorld.TerrainInfo.ChunkHeight/8
-                , _ParentWorld.TerrainInfo.ChunkWidth/8);
-            Debug.Log("Output buffer size:" + _OutputBuffer.count);
+                , _ParentWorld.TerrainInfo.ChunkWidth * _ParentWorld.TerrainInfo.PixelsPerUnit / 8
+                , _ParentWorld.TerrainInfo.ChunkHeight * _ParentWorld.TerrainInfo.PixelsPerUnit / 8
+                , _ParentWorld.TerrainInfo.ChunkWidth * _ParentWorld.TerrainInfo.PixelsPerUnit / 8);
 
             Action<AsyncGPUReadbackRequest> GPUCallback = gpuRequest => OutputBufferCompleted(gpuRequest);
             AsyncGPUReadback.Request(_OutputBuffer, GPUCallback);
@@ -97,15 +96,12 @@ public class ChunkCompute : Chunk
         _TrianglesOutput = GPUReadback.GetData<Triangle>();
 
         //Get the count from the append buffer
-        //https://answers.unity.com/questions/1035132/how-can-i-read-in-the-actual-elements-from-an-appe.html
         ComputeBuffer.CopyCount(_OutputBuffer,_CountBuffer, 0);
         int[] counter = new int[1] { 0 };
         _CountBuffer.GetData(counter);
-        Debug.Log("counter result: " + counter[0]);
 
        
         List<Triangle> triangleList = new List<Triangle>(_TrianglesOutput.GetSubArray(0, counter[0]).ToArray());
-        Debug.Log("List count:" + triangleList.Count);
 
         _VertexBuffer.Clear();
         _IndexBuffer.Clear();

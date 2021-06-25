@@ -21,6 +21,8 @@ public class World : MonoBehaviour
         public int ChunkWidth;
         public int ChunkHeight;
         public int AmountOfChunks;
+        [Tooltip("It is highly recommended to use multiples of 2, if you want proper terrain modification support")]
+        public int PixelsPerUnit;
         public Material Mat;
     }
 
@@ -59,6 +61,13 @@ public class World : MonoBehaviour
 
     void Start()
     {
+        //Validate PixelsPerUnit:
+        if (_TerrainInfo.PixelsPerUnit < 1)
+        {
+            Debug.LogWarning("PixelsPerUnit cannot be negative or 0, Value set to 1");
+            _TerrainInfo.PixelsPerUnit = 1;
+        }
+
         if (_CalculateOnGPU) Debug.Log("Marching Cube on GPU");
         else Debug.Log("Marching Cube on CPU");
 

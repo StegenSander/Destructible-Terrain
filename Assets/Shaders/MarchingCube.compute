@@ -11,12 +11,14 @@ struct Triangle
 
 int terrainWidth;
 int terrainHeight;
+int pixelsPerUnit;
 AppendStructuredBuffer<Triangle> triangles;
 RWStructuredBuffer<float> terrainData;
 
 int GetIndex(uint3 id)
 {
-    return id.z + id.y * (terrainWidth + 1) + id.x * (terrainWidth + 1) * (terrainHeight + 1);
+    return id.z + id.y * (terrainWidth * pixelsPerUnit + 1) 
+    + id.x * (terrainWidth * pixelsPerUnit + 1) * (terrainHeight * pixelsPerUnit + 1);
 }
 
 [numthreads(8,8,8)]
@@ -45,7 +47,7 @@ void MarchCubes (uint3 id : SV_DispatchThreadID)
             float3 vert2 = id + CornerTable[EdgeTable[edgeIdx][1]];
 
                 //Calculate the point
-            float3 vertPos = (vert1 + vert2) / 2.f;
+            float3 vertPos = ((vert1 + vert2) / 2.f) / pixelsPerUnit;
             
             tempTriangle[p] = vertPos;
 

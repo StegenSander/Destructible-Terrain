@@ -19,27 +19,30 @@ public class TerrainMap
         _ParentChunk = chunk;
         _TerrainInfo = chunk.GetWorld.TerrainInfo;
         _TerrainGenInfo = chunk.GetWorld.TerrainGenInfo;
-        _TerrainData = new float[_TerrainInfo.ChunkWidth + 1
-            , _TerrainInfo.ChunkHeight + 1
-            , _TerrainInfo.ChunkWidth + 1];
+        _TerrainData = new float[_TerrainInfo.ChunkWidth *_TerrainInfo.PixelsPerUnit + 1
+            , _TerrainInfo.ChunkHeight* _TerrainInfo.PixelsPerUnit + 1
+            , _TerrainInfo.ChunkWidth* _TerrainInfo.PixelsPerUnit + 1];
 
         PopulateTerrain();
-        Debug.Log($"Terrain chunk size:{_TerrainInfo.ChunkWidth},{_TerrainInfo.ChunkHeight},{_TerrainInfo.ChunkWidth}");
     }
 
     public void PopulateTerrain()
     {
-        for (int x = 0; x < _TerrainInfo.ChunkWidth + 1; x++)
-            for (int y = 0; y < _TerrainInfo.ChunkHeight  + 1; y++)
-                for (int z = 0; z < _TerrainInfo.ChunkWidth + 1; z++)
+        for (int x = 0; x < _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit + 1; x++)
+            for (int y = 0; y < _TerrainInfo.ChunkHeight * _TerrainInfo.PixelsPerUnit + 1; y++)
+                for (int z = 0; z < _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit + 1; z++)
                 {
                     if (_ParentChunk.GetWorld.GenerationFunction != null)
                         _TerrainData[x, y, z] 
                             = _ParentChunk.GetWorld.GenerationFunction(
-                                _PositionOffset.x + x, _PositionOffset.y + y, _PositionOffset.z + z);
+                                _PositionOffset.x + (float)x / _TerrainInfo.PixelsPerUnit
+                                , _PositionOffset.y + (float)y / _TerrainInfo.PixelsPerUnit
+                                , _PositionOffset.z + (float)z /_TerrainInfo.PixelsPerUnit);
                     else
                         _TerrainData[x, y, z] = GenerateTerrainHeight(
-                            _PositionOffset.x + x, _PositionOffset.y + y, _PositionOffset.z + z);
+                            _PositionOffset.x + (float)x / _TerrainInfo.PixelsPerUnit
+                            , _PositionOffset.y + (float)y / _TerrainInfo.PixelsPerUnit
+                            , _PositionOffset.z + (float)z / _TerrainInfo.PixelsPerUnit);
                 }
     }
 
@@ -53,22 +56,22 @@ public class TerrainMap
     public void SetTerrainValue(Vector3 worldPos, float value)
     {
         Vector3 terrainPos = _ParentChunk.GetWorld.WorldToTerrainSpace(worldPos) - _PositionOffset;
-        SetTerrainValue(RoundToVector3Int(terrainPos), value);
+        
+        SetTerrainValue(RoundToVector3Int(terrainPos * _TerrainInfo.PixelsPerUnit), value);
     }
-    public void SetTerrainValue(Vector3Int terrainPos, float value)
+    private void SetTerrainValue(Vector3Int terrainPos, float value)
     {
         if (!IsPosInTerrain(terrainPos)) return;
 
         _ParentChunk.NeedsUpdate = true;
-
         _TerrainData[terrainPos.x, terrainPos.y, terrainPos.z] = value;
     }
     public bool IsPosInTerrain(Vector3Int pos)
     {
         return pos.x >= 0 && pos.y >= 0 && pos.z >= 0
-            && pos.x <= _TerrainInfo.ChunkWidth
-            && pos.y <= _TerrainInfo.ChunkHeight
-            && pos.z <= _TerrainInfo.ChunkWidth;
+            && pos.x <= _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit
+            && pos.y <= _TerrainInfo.ChunkHeight * _TerrainInfo.PixelsPerUnit
+            && pos.z <= _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit;
     }
 
     public float SampleTerrain(Vector3Int p)
@@ -79,5 +82,16 @@ public class TerrainMap
     static public Vector3Int RoundToVector3Int(Vector3 vec)
     {
         return new Vector3Int(Mathf.RoundToInt(vec.x), Mathf.RoundToInt(vec.y), Mathf.RoundToInt(vec.z));
+    }
+
+    public Vector3 RoundToGrid(Vector3 vec)
+    {
+        return RoundToGrid(vec, _TerrainInfo.PixelsPerUnit);
+    }
+    static public Vector3 RoundToGrid(Vector3 vec, int pixelPerUnit)
+    {
+        var temp = pixelPerUnit * vec;
+        temp = RoundToVector3Int(temp);
+        return temp / pixelPerUnit;
     }
 }

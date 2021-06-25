@@ -17,9 +17,10 @@ public static class TerrainModifier
         Vector3 boundsMin = bounds.min;
         Vector3 boundsMax = bounds.max;
 
-        for (int x = Mathf.RoundToInt(boundsMin.x); x < boundsMax.x; x++)
-            for (int y = Mathf.RoundToInt(boundsMin.y); y < boundsMax.y; y++)
-                for (int z = Mathf.RoundToInt(boundsMin.z); z < boundsMax.z; z++)
+        float stepSize = 1f / world.TerrainInfo.PixelsPerUnit;
+        for (float x = Mathf.RoundToInt(boundsMin.x); x < boundsMax.x; x += stepSize )
+            for (float y = Mathf.RoundToInt(boundsMin.y); y < boundsMax.y; y += stepSize)
+                for (float z = Mathf.RoundToInt(boundsMin.z); z < boundsMax.z; z += stepSize)
                 {
                     Vector3 worldPos = new Vector3(x, y, z);
 
@@ -30,25 +31,30 @@ public static class TerrainModifier
                             valueToChange = -1;
 
                         Chunk c = world.AccesChunk(worldPos);
-                        c.Terrain.SetTerrainValue(worldPos, valueToChange);
+                        if (c != null)
+                            c.Terrain.SetTerrainValue(worldPos, valueToChange);
 
-                        bool xBorder = x % world.TerrainInfo.ChunkWidth == 0;
-                        bool zBorder = z % world.TerrainInfo.ChunkWidth == 0;
+                        Vector3 posRoundedToGrid = TerrainMap.RoundToGrid(worldPos, world.TerrainInfo.PixelsPerUnit);
+                        bool xBorder = Mathf.RoundToInt(posRoundedToGrid.x) % world.TerrainInfo.ChunkWidth == 0;
+                        bool zBorder = Mathf.RoundToInt(posRoundedToGrid.z) % world.TerrainInfo.ChunkWidth == 0;
                         if (xBorder)
                         {
                             c = world.AccesChunk(worldPos + new Vector3(-0.001f,0,0));
-                            c.Terrain.SetTerrainValue(worldPos, valueToChange);
+                            if (c != null)
+                                c.Terrain.SetTerrainValue(worldPos, valueToChange);
 
                         }
                         if (zBorder)
                         {
                             c = world.AccesChunk(worldPos + new Vector3(0, 0, -0.001f));
-                            c.Terrain.SetTerrainValue(worldPos, valueToChange);
+                            if (c != null)
+                                c.Terrain.SetTerrainValue(worldPos, valueToChange);
                         }
                         if (xBorder && zBorder)
                         {
                             c = world.AccesChunk(worldPos + new Vector3(-0.001f, 0, -0.001f));
-                            c.Terrain.SetTerrainValue(worldPos, valueToChange);
+                            if (c != null)
+                                c.Terrain.SetTerrainValue(worldPos, valueToChange);
                         }
                     }
                 }

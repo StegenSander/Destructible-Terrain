@@ -152,16 +152,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3bdc51c902a4f64086e108b057a54bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _CalculateOnGPU: 0
+  _CalculateOnGPU: 1
   _MarchingCubeShader: {fileID: 7200000, guid: d12aa299aa7d8da48a76249b5abb6ee6, type: 3}
   _TerrainInfo:
-    ChunkWidth: 32
-    ChunkHeight: 32
-    AmountOfChunks: 2
+    ChunkWidth: 8
+    ChunkHeight: 15
+    AmountOfChunks: 10
+    PixelsPerUnit: 4
     Mat: {fileID: 2100000, guid: 36553595eb1c9cd4d9547544471f7910, type: 2}
   _TerrainGenInfo:
-    BaseTerrainHeight: 4
-    TerrainHeightRange: 2
+    BaseTerrainHeight: 3
+    TerrainHeightRange: 5
 --- !u!4 &71218839
 Transform:
   m_ObjectHideFlags: 0
@@ -424,7 +425,7 @@ Transform:
   m_GameObject: {fileID: 973095515}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1, y: 1, z: 1}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3

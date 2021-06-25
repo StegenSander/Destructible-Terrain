@@ -66,9 +66,9 @@ public class Chunk
         Profiler.EndSample();
 
         Profiler.BeginSample("Marching cubes");
-        for (int x = 0; x < _TerrainInfo.ChunkWidth; x++)
-            for (int y = 0; y < _TerrainInfo.ChunkHeight; y++)
-                for (int z = 0; z < _TerrainInfo.ChunkWidth; z++)
+        for (int x = 0; x < _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit; x++)
+            for (int y = 0; y < _TerrainInfo.ChunkHeight * _TerrainInfo.PixelsPerUnit; y++)
+                for (int z = 0; z < _TerrainInfo.ChunkWidth * _TerrainInfo.PixelsPerUnit; z++)
                 {
                     MarchCube( x, y, z);
                 }
@@ -106,10 +106,10 @@ public class Chunk
                 if (edgeIdx == -1) //-1 -> end of this triangeTable triangle
                     return;
                 //Get the 2 vertices of the edge
-                Vector3 vert1 = pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 0]];
-                Vector3 vert2 = pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 1]];
+                Vector3 vert1 = (pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 0]]);
+                Vector3 vert2 = (pos + MarchingCubeData.CornerTable[MarchingCubeData.EdgeTable[edgeIdx, 1]]);
 
-                Vector3 vertPos = (vert1 + vert2) / 2f;
+                Vector3 vertPos = ((vert1 + vert2) / 2f) / _TerrainInfo.PixelsPerUnit;
 
                 //_IndexBuffer.Add(AddToVertexBuffer(vertPos));
                 _VertexBuffer.Add(vertPos);
